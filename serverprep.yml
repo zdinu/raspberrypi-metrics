@@ -2,7 +2,12 @@
 
 - hosts: all
 
+  vars:
+    localip: "{{ ansible_facts.eth0.ipv4.address }}"
+
   tasks:
+  - debug: var=hostvars[inventory_hostname]['ansible_default_ipv4']['address']
+
   - name: Add repository
     yum_repository:
      name: influxdbrepo
@@ -17,8 +22,32 @@
      name: influxdb
      state: latest
 
+  - name: Update all packages
+    yum:
+      name: "*"
+      state: latest
+
+  - name: Install Epel Repo
+    yum:
+      name: epel-release
+      state: latest
+
+  - name: Install Python PIP
+    yum:
+      name: python-pip
+      state: latest
+
+  - name: PIP and influxdb
+    command: "pip install influxdb"
+
   - name: Enable service
     service:
      name: influxdb
      state: started
      enabled: yes
+
+  - name: Create Database
+    influxdb_database:
+      hostname: "localhost"
+      database_name: "raspberry"
+      state: present
