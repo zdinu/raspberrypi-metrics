@@ -1,0 +1,24 @@
+---
+
+- hosts: all
+
+  tasks:
+  - name: Add repository
+    yum_repository:
+     name: influxdbrepo
+     description: influxdb YUM repo
+     baseurl: https://repos.influxdata.com/rhel/\$releasever/\$basearch/stable
+     enabled: 1
+     gpgcheck: yes
+     gpgkey: https://repos.influxdata.com/influxdb.key
+
+  - name: Install InfluxDB server
+    yum:
+     name: influxdb
+     state: latest
+
+  - name: Enable service
+    service:
+     name: influxdb
+     state: started
+     enabled: yes
