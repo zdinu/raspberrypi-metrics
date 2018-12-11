@@ -8,6 +8,11 @@
   tasks:
   - debug: var=hostvars[inventory_hostname]['ansible_default_ipv4']['address']
 
+  - name: Install Net Tools
+    yum:
+      name: net-tools
+      state: latest
+
   - name: Add repository
     yum_repository:
      name: influxdbrepo
@@ -51,3 +56,24 @@
       hostname: "localhost"
       database_name: "raspberry"
       state: present
+
+
+  - name: Add Grafana repository
+    yum_repository:
+      name: grafanarepo
+      description: Grafana YUM repo
+      baseurl: https://packagecloud.io/grafana/stable/el/7/$basearch
+      enabled: 1
+      gpgcheck: yes
+      gpgkey: https://packagecloud.io/gpg.key https://grafanarel.s3.amazonaws.com/RPM-GPG-KEY-grafana
+
+  - name: Install Grafana
+    yum:
+      name: grafana
+      state: latest
+
+  - name: Enable Grafana service
+    service:
+      name: grafana-server
+      state: started
+      enabled: yes
