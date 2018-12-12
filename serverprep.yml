@@ -51,12 +51,19 @@
      state: started
      enabled: yes
 
+
   - name: Create Database
     influxdb_database:
       hostname: "localhost"
       database_name: "raspberry"
       state: present
 
+
+  - name: "[Centos7_InfluxDB] Create InfluxDB user"
+    command: 'influx -database {{item.database}} -execute "CREATE USER {{item.user}} WITH PASSWORD
+             {{item.pass}} WITH ALL PRIVILEGES"'
+    with_items:
+      - { database: "raspberry", user: "raspuser", pass: "'rasppass'" }
 
   - name: Add Grafana repository
     yum_repository:
@@ -77,3 +84,14 @@
       name: grafana-server
       state: started
       enabled: yes
+
+  - name: Create Grafana datasource
+    grafana_datasource:
+      name: influxdb
+      grafana_url: http://localhost:3000
+      ds_type: influxdb
+      database: raspberry
+      url: http://localhost:8086
+      basic_auth_user: raspuser
+      basic_auth_password: rasppass
+      state: present
